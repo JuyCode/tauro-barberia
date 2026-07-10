@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tauro Barberia</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .menu-logo-container {
+            text-align: center;
+            margin: 20px 0 20px;
+        }
+        .menu-logo {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 10px 0;
+        }
+        .btn-menu {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, background 0.3s;
+        }
+        .btn-menu:hover {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+        .btn-menu-reserva {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        .menu-tagline {
+            font-size: 0.9rem;
+            color: #666666;
+            margin-bottom: 20px;
+        }
+        header.steps-header {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="steps-header" id="main-steps-header">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+        <h1>Reserva tu Turno</h1>
+        <p>Elegí tus opciones en simples pasos</p>
+    </header>
+
+    <main class="container">
+
+        <section id="step-0" class="booking-section active fade-in" style="display: block;">
+            <div class="menu-logo-container">
+                <img src="ft_logotauro.jpeg" alt="Tauro Barberia" class="menu-logo">
+                <h1 style="font-size: 1.6rem; margin-top: 12px;">Tauro Barbería</h1>
+                <p class="menu-tagline">Elegancia y estilo</p>
+            </div>
+
+            <div class="menu-grid">
+                <div style="display: flex; justify-content: center; gap: 12px; margin: 0 0 6px;">
+                    <a href="https://www.instagram.com/taurobarberiajuy?igsh=MTBleW9sdTZseHVzbQ==" class="icon" target="_blank" style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; text-decoration: none; font-size: 1.2rem; transition: background 0.3s;"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@taurobarberjuy?_r=1&_t=ZS-97uL9roCtoy" class="icon" target="_blank" style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; text-decoration: none; font-size: 1.2rem; transition: background 0.3s;"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/5493884889222" class="icon" target="_blank" style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; text-decoration: none; font-size: 1.2rem; transition: background 0.3s;"><i class="fab fa-whatsapp"></i></a>
+                </div>
+
+                <button class="btn-menu" onclick="iniciarReserva()">
+                    <i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Reservar un Turno
+                </button>
+
+                <a href="https://www.google.com/maps/place/ABI,+Gral.+Belgrano+575,+Y4600+San+Salvador+de+Jujuy,+Jujuy/@-24.1835292,-65.3009061,17z/data=!4m6!3m5!1s0x941b0f43add07525:0x363fcd3376671f4e!8m2!3d-24.1852159!4d-65.3010705!16s%2Fg%2F11rgfyxgrs" target="_blank" class="btn-menu">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> Ver Ubicación
+                </a>
+
+                <button class="btn-menu" onclick="verHorario()">
+                    <i class="fas fa-clock" style="margin-right: 8px;"></i> Horario
+                </button>
+            </div>
+
+            <div id="modal-horario" onclick="cerrarHorario()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; justify-content: center; align-items: center; cursor: pointer;">
+                <img src="ft_horariotauro.jpeg" style="max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.5);">
+            </div>
+        </section>
+
+        <section id="step-1" class="booking-section fade-in" style="display: none;">
+            <h2>1. Selecciona tu Barbero</h2>
+            <div class="cards-grid">
+                <label class="card-option">
+                    <input type="radio" name="barber" value="Victor">
+                    <div class="card-content">
+                        <div class="avatar avatar-placeholder">V</div>
+                        <h3>Victor</h3>
+                        <p>Disponible</p>
+                    </div>
+                </label>
+                <label class="card-option">
+                    <input type="radio" name="barber" value="Maxi">
+                    <div class="card-content">
+                        <div class="avatar avatar-placeholder">M</div>
+                        <h3>Maxi</h3>
+                        <p>Disponible</p>
+                    </div>
+                </label>
+                <label class="card-option">
+                    <input type="radio" name="barber" value="Alexis">
+                    <div class="card-content">
+                        <div class="avatar avatar-placeholder">A</div>
+                        <h3>Alexis</h3>
+                        <p>Disponible</p>
+                    </div>
+                </label>
+                <label class="card-option">
+                    <input type="radio" name="barber" value="Facu">
+                    <div class="card-content">
+                        <div class="avatar avatar-placeholder">F</div>
+                        <h3>Facu</h3>
+                        <p>Disponible</p>
+                    </div>
+                </label>
+            </div>
+            <div class="action-container navigation-buttons">
+                <button class="btn-prev" onclick="prevStep(1)">Atrás</button>
+                <button class="btn-next" onclick="nextStep(2)">Siguiente</button>
+            </div>
+        </section>
+
+        <section id="step-2" class="booking-section fade-in" style="display: none;">
+            <h2>2. Selecciona el Servicio</h2>
+            <div class="services-list">
+                <label class="service-option">
+                    <input type="radio" name="service" value="Corte de Cabello" data-price="$18.000" data-duration="1 h">
+                    <div class="service-content">
+                        <div>
+                            <span class="service-name">Corte de Cabello</span>
+                            <small class="service-duration">Incluye perfilado de cejas y diseño a elección</small>
+                        </div>
+                        <span class="service-price">$18.000</span>
+                    </div>
+                </label>
+                <label class="service-option">
+                    <input type="radio" name="service" value="Barba" data-price="$13.000" data-duration="30 min">
+                    <div class="service-content">
+                        <div>
+                            <span class="service-name">Barba</span>
+                        </div>
+                        <span class="service-price">$13.000</span>
+                    </div>
+                </label>
+                <label class="service-option">
+                    <input type="radio" name="service" value="Corte y Barba" data-price="$21.000" data-duration="1 h">
+                    <div class="service-content">
+                        <div>
+                            <span class="service-name">Corte y Barba</span>
+                        </div>
+                        <span class="service-price">$21.000</span>
+                    </div>
+                </label>
+                <label class="service-option">
+                    <input type="radio" name="service" value="Limpieza Facial" data-price="$15.000" data-duration="45 min">
+                    <div class="service-content">
+                        <div>
+                            <span class="service-name">Limpieza Facial</span>
+                        </div>
+                        <span class="service-price">$15.000</span>
+                    </div>
+                </label>
+                <label class="service-option">
+                    <input type="radio" name="service" value="Servicio TAURO Premium" data-price="$30.000" data-duration="1 h 30 min">
+                    <div class="service-content">
+                        <div>
+                            <span class="service-name">Servicio TAURO Premium</span>
+                            <small class="service-duration">Experiencia completa con corte, barba, limpieza facial y más</small>
+                        </div>
+                        <span class="service-price">$30.000</span>
+                    </div>
+                </label>
+            </div>
+            <div class="action-container navigation-buttons">
+                <button class="btn-prev" onclick="prevStep(1)">Atrás</button>
+                <button class="btn-next" onclick="nextStep(3)">Siguiente</button>
+            </div>
+        </section>
+
+        <section id="step-3" class="booking-section fade-in" style="display: none;">
+            <h2>3. Fecha y Horario</h2>
+            <div class="date-picker-container">
+                <label for="appointment-date">Elegí el día (Lunes a Sábado):</label>
+                <input type="date" id="appointment-date" name="appointment-date">
+            </div>
+
+            <div class="time-grid" id="time-slots-container"></div>
+
+            <div class="action-container navigation-buttons">
+                <button class="btn-prev" onclick="prevStep(2)">Atrás</button>
+                <button class="btn-next" onclick="nextStep(4)">Siguiente</button>
+            </div>
+        </section>
+
+        <section id="step-4" class="booking-section fade-in" style="display: none;">
+            <h2>4. Pago y Contacto</h2>
+            <div class="payment-options">
+                <label class="payment-card">
+                    <input type="radio" name="payment" value="Efectivo">
+                    <div class="card-content">
+                        <h3>Efectivo</h3>
+                        <p>Abonás en el local</p>
+                    </div>
+                </label>
+                <label class="payment-card">
+                    <input type="radio" name="payment" value="Mercado Pago">
+                    <div class="card-content">
+                        <h3>Mercado Pago</h3>
+                        <p>Transferencia</p>
+                    </div>
+                </label>
+            </div>
+
+            <div class="client-info-container">
+                <label for="client-name">Tu Nombre:</label>
+                <input type="text" id="client-name" placeholder="Ej: Lionel Messi" required>
+
+                <label for="client-phone">Tu número de WhatsApp:</label>
+                <input type="tel" id="client-phone" placeholder="Ej: 388XXXXXXX" required>
+            </div>
+
+            <div class="action-container navigation-buttons">
+                <button class="btn-prev" onclick="prevStep(3)">Atrás</button>
+                <button class="btn-confirmar" onclick="confirmarTurno()">Confirmar Turno</button>
+            </div>
+        </section>
+
+        <section id="step-5" class="booking-section fade-in" style="display: none;">
+            <div style="padding: 30px 20px;">
+                <div style="font-size: 50px; color: #1a1a1a; margin-bottom: 16px;">✓</div>
+                <h2 style="color: #1a1a1a; margin-bottom: 10px;">¡Turno Reservado!</h2>
+                <p style="color: #666666; font-size: 1em; line-height: 1.6; margin-bottom: 25px;">
+                    Te enviamos un mensaje de <strong style="color: #1a1a1a;">WhatsApp</strong> con todos los detalles.
+                </p>
+                <p style="color: #999999; font-size: 0.85em; margin-bottom: 30px;">
+                    Gracias por elegir Tauro Barbería
+                </p>
+                <button onclick="location.reload()" class="btn-next" style="width: 100%; max-width: 250px; margin: 0 auto; display: block;">Sacar otro turno</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Tauro Barbería · San Salvador de Jujuy</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
