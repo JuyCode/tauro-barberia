@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tauro Barberia</title>
+    <title>Tu Barbería - Reserva tu Turno</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
         .menu-logo-container {
             text-align: center;
@@ -74,23 +73,23 @@
 
         <section id="step-0" class="booking-section active fade-in" style="display: block;">
             <div class="menu-logo-container">
-                <img src="ft_logotauro.jpeg" alt="Tauro Barberia" class="menu-logo">
-                <h1 style="font-size: 1.6rem; margin-top: 12px;">Tauro Barbería</h1>
-                <p class="menu-tagline">Elegancia y estilo</p>
+                <div style="width: 130px; height: 130px; border-radius: 50%; background: #1a1a1a; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2.8rem; font-weight: 700; color: #fff;">TB</div>
+                <h1 style="font-size: 1.6rem; margin-top: 12px; color: #1a1a1a;">Tu Barbería</h1>
+                <p class="menu-tagline">Tu estilo, tu lugar</p>
             </div>
 
             <div class="menu-grid">
                 <div style="display: flex; justify-content: center; gap: 12px; margin: 0 0 6px;">
-                    <a href="https://www.instagram.com/taurobarberiajuy?igsh=MTBleW9sdTZseHVzbQ==" class="icon" target="_blank" style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; text-decoration: none; font-size: 1.2rem; transition: background 0.3s;"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.tiktok.com/@taurobarberjuy?_r=1&_t=ZS-97uL9roCtoy" class="icon" target="_blank" style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; text-decoration: none; font-size: 1.2rem; transition: background 0.3s;"><i class="fab fa-tiktok"></i></a>
-                    <a href="https://wa.me/5493884889222" class="icon" target="_blank" style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; text-decoration: none; font-size: 1.2rem; transition: background 0.3s;"><i class="fab fa-whatsapp"></i></a>
+                    <span style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; font-size: 1.2rem; cursor: default;"><i class="fab fa-instagram"></i></span>
+                    <span style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; font-size: 1.2rem; cursor: default;"><i class="fab fa-tiktok"></i></span>
+                    <span style="display: inline-flex; justify-content: center; align-items: center; width: 40px; height: 40px; background: rgba(0,0,0,0.08); border-radius: 50%; color: #1a1a1a; font-size: 1.2rem; cursor: default;"><i class="fab fa-whatsapp"></i></span>
                 </div>
 
                 <button class="btn-menu" onclick="iniciarReserva()">
                     <i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Reservar un Turno
                 </button>
 
-                <a href="https://www.google.com/maps/place/ABI,+Gral.+Belgrano+575,+Y4600+San+Salvador+de+Jujuy,+Jujuy/@-24.1835292,-65.3009061,17z/data=!4m6!3m5!1s0x941b0f43add07525:0x363fcd3376671f4e!8m2!3d-24.1852159!4d-65.3010705!16s%2Fg%2F11rgfyxgrs" target="_blank" class="btn-menu">
+                <a href="#" target="_blank" class="btn-menu">
                     <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> Ver Ubicación
                 </a>
 
@@ -100,7 +99,14 @@
             </div>
 
             <div id="modal-horario" onclick="cerrarHorario()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; justify-content: center; align-items: center; cursor: pointer;">
-                <img src="ft_horariotauro.jpeg" style="max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.5);">
+                <div style="max-width: 90%; background: #fff; border-radius: 16px; padding: 30px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.3);">
+                    <h2 style="margin: 0 0 8px; color: #1a1a1a;">Horarios</h2>
+                    <p style="margin: 0; color: #666; line-height: 2; font-size: 1rem;">
+                        Lun a Vie: 09:00 - 22:00<br>
+                        Sáb: 10:00 - 22:00<br>
+                        Dom: Cerrado
+                    </p>
+                </div>
             </div>
         </section>
 
@@ -108,34 +114,34 @@
             <h2>1. Selecciona tu Barbero</h2>
             <div class="cards-grid">
                 <label class="card-option">
-                    <input type="radio" name="barber" value="Victor">
+                    <input type="radio" name="barber" value="Barbero 1">
                     <div class="card-content">
-                        <div class="avatar avatar-placeholder">V</div>
-                        <h3>Victor</h3>
+                        <div class="avatar avatar-placeholder">B1</div>
+                        <h3>Barbero 1</h3>
                         <p>Disponible</p>
                     </div>
                 </label>
                 <label class="card-option">
-                    <input type="radio" name="barber" value="Maxi">
+                    <input type="radio" name="barber" value="Barbero 2">
                     <div class="card-content">
-                        <div class="avatar avatar-placeholder">M</div>
-                        <h3>Maxi</h3>
+                        <div class="avatar avatar-placeholder">B2</div>
+                        <h3>Barbero 2</h3>
                         <p>Disponible</p>
                     </div>
                 </label>
                 <label class="card-option">
-                    <input type="radio" name="barber" value="Alexis">
+                    <input type="radio" name="barber" value="Barbero 3">
                     <div class="card-content">
-                        <div class="avatar avatar-placeholder">A</div>
-                        <h3>Alexis</h3>
+                        <div class="avatar avatar-placeholder">B3</div>
+                        <h3>Barbero 3</h3>
                         <p>Disponible</p>
                     </div>
                 </label>
                 <label class="card-option">
-                    <input type="radio" name="barber" value="Facu">
+                    <input type="radio" name="barber" value="Barbero 4">
                     <div class="card-content">
-                        <div class="avatar avatar-placeholder">F</div>
-                        <h3>Facu</h3>
+                        <div class="avatar avatar-placeholder">B4</div>
+                        <h3>Barbero 4</h3>
                         <p>Disponible</p>
                     </div>
                 </label>
@@ -267,7 +273,7 @@
     </main>
 
     <footer>
-        <p>Tauro Barbería · San Salvador de Jujuy</p>
+        <p>Tu Barbería · Reserva tu turno online</p>
         <p style="margin-top: 6px; font-size: 0.75rem;"><a href="admin.html" style="color: #aaa; text-decoration: none;">Admin</a></p>
     </footer>
 

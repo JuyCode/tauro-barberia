@@ -35,6 +35,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+const SUPABASE_URL = 'https://heirivzfsksbrfdesfwa.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_gNLnzXOEvSoZqzJyA3LTOQ_P4kRbpJ_';
+
+async function supabaseFetch(path, options = {}) {
+    const res = await fetch(SUPABASE_URL + path, {
+        ...options,
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            ...options.headers,
+        },
+    });
+    if (options.method === 'POST') return res.json();
+    if (res.status === 204) return null;
+    return res.json();
+}
+
 function generarHorariosDinamicos() {
     const barberoInput = document.querySelector('input[name="barber"]:checked');
     const dateInput = document.getElementById('appointment-date');
@@ -59,12 +77,11 @@ function generarHorariosDinamicos() {
 
     container.innerHTML = '<div class="loading" style="text-align:center;color:#999;padding:10px;">Cargando horarios...</div>';
 
-    const SUPABASE_URL = 'https://heirivzfsksbrfdesfwa.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_gNLnzXOEvSoZqzJyA3LTOQ_P4kRbpJ_';
-    const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    supabase.from('turnos').select('hora').eq('fecha', fecha).eq('barbero', barbero).then(({ data: turnosOcupados }) => {
-        const ocupadas = (turnosOcupados || []).map(t => t.hora);
+    const query = `/rest/v1/turnos?select=hora&fecha=eq.${fecha}&barbero=eq.${barbero}`;
+    
+    supabaseFetch(query).then(data => {
+        const turnos = data || [];
+        const ocupadas = turnos.map(t => t.hora);
         const libres = horasDisponibles.filter(h => !ocupadas.includes(h));
 
         container.innerHTML = "";
@@ -192,10 +209,10 @@ function confirmarTurno() {
 
     let numeroBarbero = "";
     const telefonosBarberos = {
-        Victor: "5493884889222",
-        Maxi: "5493884889222",
-        Alexis: "5493884889222",
-        Facu: "5493884889222"
+        "Barbero 1": "5493880000000",
+        "Barbero 2": "5493880000000",
+        "Barbero 3": "5493880000000",
+        "Barbero 4": "5493880000000"
     };
     numeroBarbero = telefonosBarberos[barbero] || "";
 
@@ -227,21 +244,20 @@ function confirmarTurno() {
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    const SUPABASE_URL = 'https://heirivzfsksbrfdesfwa.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_gNLnzXOEvSoZqzJyA3LTOQ_P4kRbpJ_';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    supabase.from('turnos').insert([{
-        cliente: nombre,
-        barbero: barbero,
-        servicio: servicio,
-        fecha: fecha,
-        hora: hora,
-        pago: pago.value,
-        precio: precio,
-        whatsapp_cliente: telefonoCliente,
-        whatsapp_barbero: numeroDestino
-    }]).then(() => {
+    supabaseFetch('/rest/v1/turnos', {
+        method: 'POST',
+        body: JSON.stringify({
+            cliente: nombre,
+            barbero: barbero,
+            servicio: servicio,
+            fecha: fecha,
+            hora: hora,
+            pago: pago.value,
+            precio: precio,
+            whatsapp_cliente: telefonoCliente,
+            whatsapp_barbero: numeroDestino
+        })
+    }).then(() => {
         if (urlWhatsApp !== "#") {
             window.location.href = urlWhatsApp;
         }
