@@ -45,6 +45,7 @@ function generarHorariosDinamicos() {
         return;
     }
 
+    const barbero = barberoInput.value;
     const fecha = dateInput.value; 
     const numeroDiaSemana = new Date(fecha + 'T00:00:00').getDay();
 
@@ -56,15 +57,41 @@ function generarHorariosDinamicos() {
         horasDisponibles = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
     }
 
-    container.innerHTML = "";
+    container.innerHTML = '<div class="loading" style="text-align:center;color:#999;padding:10px;">Cargando horarios...</div>';
 
-    horasDisponibles.forEach(hora => {
-        container.innerHTML += `
-            <label class="time-option">
-                <input type="radio" name="time" value="${hora}">
-                <span>${hora} hs</span>
-            </label>
-        `;
+    const SUPABASE_URL = 'https://heirivzfsksbrfdesfwa.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_gNLnzXOEvSoZqzJyA3LTOQ_P4kRbpJ_';
+    const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    supabase.from('turnos').select('hora').eq('fecha', fecha).eq('barbero', barbero).then(({ data: turnosOcupados }) => {
+        const ocupadas = (turnosOcupados || []).map(t => t.hora);
+        const libres = horasDisponibles.filter(h => !ocupadas.includes(h));
+
+        container.innerHTML = "";
+
+        if (libres.length === 0) {
+            container.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">No hay horarios disponibles para este día</div>';
+            return;
+        }
+
+        libres.forEach(hora => {
+            container.innerHTML += `
+                <label class="time-option">
+                    <input type="radio" name="time" value="${hora}">
+                    <span>${hora} hs</span>
+                </label>
+            `;
+        });
+    }).catch(() => {
+        container.innerHTML = "";
+        horasDisponibles.forEach(hora => {
+            container.innerHTML += `
+                <label class="time-option">
+                    <input type="radio" name="time" value="${hora}">
+                    <span>${hora} hs</span>
+                </label>
+            `;
+        });
     });
 }
 
@@ -139,6 +166,8 @@ function prevStep(stepNumber) {
 function confirmarTurno() {
     const barbero = document.querySelector('input[name="barber"]:checked').value;
     const servicioInput = document.querySelector('input[name="service"]:checked');
+    const servicio = servicioInput.value;
+    const precio = servicioInput.getAttribute('data-price') || '';
     const fecha = document.getElementById('appointment-date').value;
     const hora = document.querySelector('input[name="time"]:checked').value;
     const pago = document.querySelector('input[name="payment"]:checked');
@@ -177,7 +206,7 @@ function confirmarTurno() {
 
     const mensaje = `Hola ${barbero}! Acabo de reservar un turno desde la pagina web. Acá te dejo mis datos:\n\n` +
                     `Cliente: ${nombre}\n` +
-                    `Servicio: ${servicioInput.value}\n` +
+                    `Servicio: ${servicio}\n` +
                     `Fecha: ${fechaFormateada}\n` +
                     `Hora: ${hora} hs\n\n` +
                     `¡Nos vemos!`;
@@ -198,9 +227,29 @@ function confirmarTurno() {
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    if (urlWhatsApp !== "#") {
-        window.location.href = urlWhatsApp;
-    }
+    const SUPABASE_URL = 'https://heirivzfsksbrfdesfwa.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_gNLnzXOEvSoZqzJyA3LTOQ_P4kRbpJ_';
+    const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    supabase.from('turnos').insert([{
+        cliente: nombre,
+        barbero: barbero,
+        servicio: servicio,
+        fecha: fecha,
+        hora: hora,
+        pago: pago.value,
+        precio: precio,
+        whatsapp_cliente: telefonoCliente,
+        whatsapp_barbero: numeroDestino
+    }]).then(() => {
+        if (urlWhatsApp !== "#") {
+            window.location.href = urlWhatsApp;
+        }
+    }).catch(() => {
+        if (urlWhatsApp !== "#") {
+            window.location.href = urlWhatsApp;
+        }
+    });
 }
 
 function iniciarReserva() {

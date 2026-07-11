@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Tauro Barbería</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 50%, #cccccc 100%);
+            min-height: 100vh;
+            color: #1a1a1a;
+        }
+        .admin-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .admin-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .admin-header h1 {
+            font-size: 1.6rem;
+            margin: 0;
+        }
+        .admin-header .subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .admin-header a {
+            color: #666;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .admin-header a:hover {
+            text-decoration: underline;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background: rgba(255,255,255,0.5);
+            color: #666;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .tab-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.8);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+        .glass-card h3 {
+            margin: 0 0 12px;
+            font-size: 1.1rem;
+        }
+        .glass-card input[type="date"],
+        .glass-card input[type="month"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+        .glass-card select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            background: #fff;
+        }
+        .barber-group {
+            margin-bottom: 20px;
+        }
+        .barber-group:last-child {
+            margin-bottom: 0;
+        }
+        .barber-group h4 {
+            font-size: 1rem;
+            margin: 0 0 8px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        .turno-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            font-size: 0.9rem;
+        }
+        .turno-item:last-child {
+            border-bottom: none;
+        }
+        .turno-hora {
+            font-weight: 600;
+            min-width: 55px;
+        }
+        .turno-cliente {
+            flex: 1;
+            margin: 0 12px;
+        }
+        .turno-servicio {
+            color: #666;
+            font-size: 0.85rem;
+            margin-right: 8px;
+        }
+        .turno-precio {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 30px 0;
+            font-size: 0.95rem;
+        }
+        .ganancias-grid {
+            display: grid;
+            gap: 12px;
+        }
+        .barber-earnings {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+        }
+        .barber-earnings .name {
+            font-weight: 600;
+        }
+        .barber-earnings .total {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        .grand-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px;
+            margin-top: 12px;
+            background: #1a1a1a;
+            color: #fff;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .loading {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+        .badge-pago {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.06);
+            margin-left: 6px;
+        }
+        .volver-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 10px 24px;
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Panel Admin</h1>
+            <p class="subtitle">Tauro Barbería · Control de turnos y ganancias</p>
+            <a href="index.html">← Volver a la página principal</a>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="cambiarTab('agenda', this)"><i class="fas fa-calendar-alt"></i> Agenda</button>
+            <button class="tab-btn" onclick="cambiarTab('ganancias', this)"><i class="fas fa-chart-bar"></i> Ganancias</button>
+        </div>
+
+        <div id="tab-agenda" class="tab-content active">
+            <div class="glass-card">
+                <h3><i class="fas fa-search"></i> Consultar turnos</h3>
+                <input type="date" id="admin-fecha" onchange="cargarAgenda()">
+                <div id="agenda-result"></div>
+            </div>
+        </div>
+
+        <div id="tab-ganancias" class="tab-content">
+            <div class="glass-card">
+                <h3><i class="fas fa-money-bill-wave"></i> Ganancias por período</h3>
+                <input type="month" id="admin-mes" onchange="cargarGanancias()">
+                <div id="ganancias-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://heirivzfsksbrfdesfwa.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_gNLnzXOEvSoZqzJyA3LTOQ_P4kRbpJ_';
+        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const barberos = ['Victor', 'Maxi', 'Alexis', 'Facu'];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('admin-fecha').value = hoy;
+            cargarAgenda();
+
+            const mesActual = hoy.slice(0, 7);
+            document.getElementById('admin-mes').value = mesActual;
+            cargarGanancias();
+        });
+
+        function cambiarTab(tab, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        function parsearPrecio(servicio) {
+            const precios = {
+                'Corte de Cabello': 18000,
+                'Barba': 13000,
+                'Corte y Barba': 21000,
+                'Limpieza Facial': 15000,
+                'Servicio TAURO Premium': 30000
+            };
+            return precios[servicio] || 0;
+        }
+
+        async function cargarAgenda() {
+            const fecha = document.getElementById('admin-fecha').value;
+            const container = document.getElementById('agenda-result');
+            container.innerHTML = '<div class="loading">Cargando...</div>';
+
+            if (!fecha) {
+                container.innerHTML = '<div class="empty-state">Seleccioná una fecha</div>';
+                return;
+            }
+
+            try {
+                const { data: turnos, error } = await supabase
+                    .from('turnos')
+                    .select('*')
+                    .eq('fecha', fecha)
+                    .order('hora', { ascending: true });
+
+                if (error) throw error;
+
+                if (!turnos || turnos.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No hay turnos para esta fecha</div>';
+                    return;
+                }
+
+                const agrupados = {};
+                turnos.forEach(t => {
+                    if (!agrupados[t.barbero]) agrupados[t.barbero] = [];
+                    agrupados[t.barbero].push(t);
+                });
+
+                let html = '';
+                barberos.forEach(barber => {
+                    const turnosBarber = agrupados[barber] || [];
+                    if (turnosBarber.length === 0) return;
+                    html += '<div class="barber-group">';
+                    html += `<h4><i class="fas fa-user"></i> ${barber} (${turnosBarber.length} turno${turnosBarber.length !== 1 ? 's' : ''})</h4>`;
+                    turnosBarber.forEach(t => {
+                        html += '<div class="turno-item">';
+                        html += `<span class="turno-hora">${t.hora}</span>`;
+                        html += `<span class="turno-cliente">${t.cliente}</span>`;
+                        html += `<span class="turno-servicio">${t.servicio}</span>`;
+                        html += `<span class="turno-precio">$${Number(t.precio || parsearPrecio(t.servicio)).toLocaleString('es-AR')}</span>`;
+                        html += `<span class="badge-pago">${t.pago || ''}</span>`;
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                });
+
+                container.innerHTML = html;
+
+            } catch (err) {
+                container.innerHTML = `<div class="empty-state">Error al cargar: ${err.message}</div>`;
+            }
+        }
+
+        async function cargarGanancias() {
+            const mes = document.getElementById('admin-mes').value;
+            const container = document.getElementById('ganancias-result');
+            container.innerHTML = '<div class="loading">Cargando...</div>';
+
+            if (!mes) {
+                container.innerHTML = '<div class="empty-state">Seleccioná un mes</div>';
+                return;
+            }
+
+            try {
+                const inicio = mes + '-01';
+                const fin = mes + '-31';
+
+                const { data: turnos, error } = await supabase
+                    .from('turnos')
+                    .select('*')
+                    .gte('fecha', inicio)
+                    .lte('fecha', fin)
+                    .order('fecha', { ascending: true });
+
+                if (error) throw error;
+
+                if (!turnos || turnos.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No hay turnos en este mes</div>';
+                    return;
+                }
+
+                const ganancias = {};
+                let totalGeneral = 0;
+
+                barberos.forEach(b => { ganancias[b] = 0; });
+
+                turnos.forEach(t => {
+                    const precio = Number(t.precio) || parsearPrecio(t.servicio);
+                    if (ganancias[t.barbero] !== undefined) {
+                        ganancias[t.barbero] += precio;
+                    }
+                    totalGeneral += precio;
+                });
+
+                let html = '<div class="ganancias-grid">';
+                barberos.forEach(barber => {
+                    const total = ganancias[barber] || 0;
+                    const cantidad = turnos.filter(t => t.barbero === barber).length;
+                    if (total === 0 && cantidad === 0) return;
+                    html += '<div class="barber-earnings">';
+                    html += `<span class="name"><i class="fas fa-user"></i> ${barber} <span style="color:#999;font-size:0.85rem;">(${cantidad} turno${cantidad !== 1 ? 's' : ''})</span></span>`;
+                    html += `<span class="total">$${total.toLocaleString('es-AR')}</span>`;
+                    html += '</div>';
+                });
+                html += '</div>';
+
+                html += `<div class="grand-total">
+                    <span>Total General</span>
+                    <span>$${totalGeneral.toLocaleString('es-AR')}</span>
+                </div>`;
+
+                html += `<div style="text-align:center;margin-top:12px;color:#999;font-size:0.85rem;">${turnos.length} turno${turnos.length !== 1 ? 's' : ''} en total</div>`;
+
+                container.innerHTML = html;
+
+            } catch (err) {
+                container.innerHTML = `<div class="empty-state">Error al cargar: ${err.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
