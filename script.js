@@ -35,24 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-const SUPABASE_URL = 'https://heirivzfsksbrfdesfwa.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_gNLnzXOEvSoZqzJyA3LTOQ_P4kRbpJ_';
-
-async function supabaseFetch(path, options = {}) {
-    const res = await fetch(SUPABASE_URL + path, {
-        ...options,
-        headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
-            'Content-Type': 'application/json',
-            ...options.headers,
-        },
-    });
-    if (options.method === 'POST') return res.json();
-    if (res.status === 204) return null;
-    return res.json();
-}
-
 function generarHorariosDinamicos() {
     const barberoInput = document.querySelector('input[name="barber"]:checked');
     const dateInput = document.getElementById('appointment-date');
@@ -63,7 +45,6 @@ function generarHorariosDinamicos() {
         return;
     }
 
-    const barbero = barberoInput.value;
     const fecha = dateInput.value; 
     const numeroDiaSemana = new Date(fecha + 'T00:00:00').getDay();
 
@@ -75,40 +56,25 @@ function generarHorariosDinamicos() {
         horasDisponibles = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
     }
 
-    container.innerHTML = '<div class="loading" style="text-align:center;color:#999;padding:10px;">Cargando horarios...</div>';
+    const turnosGuardados = JSON.parse(localStorage.getItem('turnos') || '[]');
+    const barbero = barberoInput.value;
+    const ocupadas = turnosGuardados.filter(t => t.fecha === fecha && t.barbero === barbero).map(t => t.hora);
+    const libres = horasDisponibles.filter(h => !ocupadas.includes(h));
 
-    const query = `/rest/v1/turnos?select=hora&fecha=eq.${fecha}&barbero=eq.${barbero}`;
-    
-    supabaseFetch(query).then(data => {
-        const turnos = data || [];
-        const ocupadas = turnos.map(t => t.hora);
-        const libres = horasDisponibles.filter(h => !ocupadas.includes(h));
+    container.innerHTML = "";
 
-        container.innerHTML = "";
+    if (libres.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">No hay horarios disponibles para este día</div>';
+        return;
+    }
 
-        if (libres.length === 0) {
-            container.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">No hay horarios disponibles para este día</div>';
-            return;
-        }
-
-        libres.forEach(hora => {
-            container.innerHTML += `
-                <label class="time-option">
-                    <input type="radio" name="time" value="${hora}">
-                    <span>${hora} hs</span>
-                </label>
-            `;
-        });
-    }).catch(() => {
-        container.innerHTML = "";
-        horasDisponibles.forEach(hora => {
-            container.innerHTML += `
-                <label class="time-option">
-                    <input type="radio" name="time" value="${hora}">
-                    <span>${hora} hs</span>
-                </label>
-            `;
-        });
+    libres.forEach(hora => {
+        container.innerHTML += `
+            <label class="time-option">
+                <input type="radio" name="time" value="${hora}">
+                <span>${hora} hs</span>
+            </label>
+        `;
     });
 }
 
@@ -244,28 +210,23 @@ function confirmarTurno() {
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    supabaseFetch('/rest/v1/turnos', {
-        method: 'POST',
-        body: JSON.stringify({
-            cliente: nombre,
-            barbero: barbero,
-            servicio: servicio,
-            fecha: fecha,
-            hora: hora,
-            pago: pago.value,
-            precio: precio,
-            whatsapp_cliente: telefonoCliente,
-            whatsapp_barbero: numeroDestino
-        })
-    }).then(() => {
-        if (urlWhatsApp !== "#") {
-            window.location.href = urlWhatsApp;
-        }
-    }).catch(() => {
-        if (urlWhatsApp !== "#") {
-            window.location.href = urlWhatsApp;
-        }
+    const turnos = JSON.parse(localStorage.getItem('turnos') || '[]');
+    turnos.push({
+        cliente: nombre,
+        barbero: barbero,
+        servicio: servicio,
+        fecha: fecha,
+        hora: hora,
+        pago: pago.value,
+        precio: precio,
+        whatsapp_cliente: telefonoCliente,
+        whatsapp_barbero: numeroDestino
     });
+    localStorage.setItem('turnos', JSON.stringify(turnos));
+
+    if (urlWhatsApp !== "#") {
+        window.location.href = urlWhatsApp;
+    }
 }
 
 function iniciarReserva() {
