@@ -175,10 +175,10 @@ function confirmarTurno() {
 
     let numeroBarbero = "";
     const telefonosBarberos = {
-        "Barbero 1": "5493880000000",
-        "Barbero 2": "5493880000000",
-        "Barbero 3": "5493880000000",
-        "Barbero 4": "5493880000000"
+        "Barbero 1": "5493884418917",
+        "Barbero 2": "5493884418917",
+        "Barbero 3": "5493884418917",
+        "Barbero 4": "5493884418917"
     };
     numeroBarbero = telefonosBarberos[barbero] || "";
 
